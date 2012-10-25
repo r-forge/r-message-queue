@@ -41,11 +41,14 @@ while (!feof($handle)) {
 fclose($handle);
 echo $contents; } ?>
 
-<!-- end of project description -->
+<p>
+This package creates a simple way to interact with message queues regardless of the underlying provider of the queue (currently activeMQ or rabbitMQ, but can be extended).
+</p>
+<p>
+The idea is to provide this basic functionality such that R doesn't need to deal with the specifics of queues or their underlying implementation differences.  Provides a simple way to PUT a text message on a queue and GET a text message from a queue.
+</p>
 
-<p> No content added. </p>
-
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p> Continue to the <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>the project summary page</strong></a>.</p>
 
 </body>
 </html>
