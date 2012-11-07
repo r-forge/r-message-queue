@@ -30,7 +30,7 @@ License: \tab GPL\cr
 }
 \author{
 Matt MacGillivray
-Maintainer: Matt MacGillivray <matthew.macgillivray@gmail.com>
+Maintainer: Matt MacGillivray <matthew.macgillivray@cornell.edu>
 }
 \references{
 RabbitMQ - http://www.rabbitmq.com/
@@ -48,8 +48,7 @@ Writing Java Extensions - http://cran.r-project.org/web/packages/helloJavaWorld/
 \seealso{
 }
 \examples{
-Basic example using all functions.
-
+# Basic example using all functions.
 
 # create a queue producer
 queueAproducer <- messageQueue.factory.getProducerFor("tcp://localhost:61616","queueA","activeMQ")

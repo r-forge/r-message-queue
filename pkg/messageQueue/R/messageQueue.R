@@ -2,7 +2,7 @@
 #
 # Currently supports activeMQ and rabbitMQ.
 # 
-# Author: msm336
+# Author: matthew.macgillivray@cornell.edu
 ###############################################################################
 
 

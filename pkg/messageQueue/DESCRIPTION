@@ -7,7 +7,7 @@ Author: Matt MacGillivray
 Depends: R (>= 2.11.0), rJava (>= 0.6-0)
 Imports: rJava (>= 0.6-0)
 SystemRequirements: Java (>=7.0)
-Maintainer: Matt MacGillivray <matthew.macgillivray@gmail.com>
+Maintainer: Matt MacGillivray <matthew.macgillivray@cornell.edu>
 Description: This package creates a simple way to interact with message queues regardless of the underlying provider of the queue (activeMQ or rabbitMQ).  The idea is to provide this basic functionality such that R doesn't need to deal with the specifics of queues or their underlying implementation differences.  Provides a simple way to PUT a text message on a queue and GET a text message from a queue.
 License: LGPL (>= 2.0)
 Repository: rforge
