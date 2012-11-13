@@ -48,31 +48,32 @@ Writing Java Extensions - http://cran.r-project.org/web/packages/helloJavaWorld/
 \seealso{
 }
 \examples{
-# Basic example using all functions.
+# Basic example using all functions
+# NOTE: I can't get the example to run via the build server automatically, so I'm commenting it out
 
 # create a queue producer
-queueAproducer <- messageQueue.factory.getProducerFor("tcp://localhost:61616","queueA","activeMQ")
+#queueAproducer <- messageQueue.factory.getProducerFor("tcp://localhost:61616","queueA","activeMQ")
 
 # ... do some stuff ...
 
 # put a message on the queue
-textMessage <- "this is the message I want to send"
-status <- messageQueue.producer.putText(queueAproducer, textMessage)
+#textMessage <- "this is the message I want to send"
+#status <- messageQueue.producer.putText(queueAproducer, textMessage)
 
 # close the producer
-status <- messageQueue.producer.close(queueAproducer)
+#status <- messageQueue.producer.close(queueAproducer)
 
 
 
 # create a queue consumer
-queueAconsumer <- messageQueue.factory.getConsumerFor("tcp://localhost:61616","queueA","activeMQ")
+#queueAconsumer <- messageQueue.factory.getConsumerFor("tcp://localhost:61616","queueA","activeMQ")
 
 # retrieve the next available text message
-textMessage <- messageQueue.consumer.getNextText(consumer)
+#textMessage <- messageQueue.consumer.getNextText(consumer)
 
 # ... do some stuff ...
 
 # close the consumer
-status <- messageQueue.consumer.close(queueAconsumer)
+#status <- messageQueue.consumer.close(queueAconsumer)
 
 }
