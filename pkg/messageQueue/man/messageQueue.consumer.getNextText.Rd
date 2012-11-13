@@ -42,7 +42,7 @@ Matt MacGillivray
 queueAconsumer <- messageQueue.factory.getConsumerFor("tcp://localhost:61616","queueA","activeMQ")
 
 # retrieve the next available text message
-textMessage <- messageQueue.consumer.getNextText(consumer)
+textMessage <- messageQueue.consumer.getNextText(queueAconsumer)
 
 # ... do some stuff ...
 

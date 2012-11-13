@@ -22,7 +22,13 @@
 messageQueue.factory.getConsumerFor <-
 	function(url, queue, queueType) {
 		# call the MessageQueueFactory.getConsumerFor static method
-		consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer","getConsumerFor", url, queue, queueType)
+		
+		# should be a static call, not sure how to do that
+		#consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
+	
+		# instantiate object, then call (for now)
+		mqFactory <- .jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
+		consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
 		return(consumer);
 	}
 
@@ -36,8 +42,14 @@ messageQueue.factory.getConsumerFor <-
 messageQueue.factory.getProducerFor <-
 	function(url, queue, queueType) {
 		# call the MessageQueueFactory.getConsumerFor static method
-		consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer","getProducerFor", url, queue, queueType)
-		return(consumer);
+	
+		# should be a static call, not sure how to do that
+		producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
+
+		# instantiate object, then call (for now)
+		#mqFactory <-.jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
+		#consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
+		return(producer);
 	}
 
 
@@ -45,7 +57,12 @@ messageQueue.factory.getProducerFor <-
 # Non-blocking
 messageQueue.consumer.getNextText <-
 	function(consumer) {
-		message <- .jcall(consumer, "S", "getNextText")
+		if (!is.null(consumer)) {
+			#message <- .jcall(consumer, "S", "getNextText")
+			message <- consumer$.getNextText();
+		} else {
+			message = NULL;
+		}
 		return(message);
 	}
 
@@ -54,7 +71,12 @@ messageQueue.consumer.getNextText <-
 # Non-blocking
 messageQueue.consumer.close <-
 	function(consumer) {
-		status <- .jcall(consumer, "I", "close")
+		if (!is.null(consumer)) {
+			#status <- .jcall(consumer, "I", "close")
+			status <- consumer$close();
+		} else {
+			status = -5;
+		}
 		return(status);
 	}
 
@@ -63,7 +85,11 @@ messageQueue.consumer.close <-
 # Non-blocking
 messageQueue.producer.putText <-
 	function(producer, text) {
-		status <- .jcall(producer, "I", "putText", text)
+		if (!is.null(producer)) {
+			status <- .jcall(producer, "I", "putText", text)
+		} else {
+			status = -5;
+		}
 		return(status);
 	}
 	
@@ -72,7 +98,11 @@ messageQueue.producer.putText <-
 # Non-blocking
 messageQueue.producer.close <-
 	function(producer) {
-		status <- .jcall(producer, "I", "close")
+		if (!is.null(producer)) {
+			status <- .jcall(producer, "I", "close")
+		} else {
+			status = -5;
+		}
 		return(status);
 	}
 	
@@ -84,6 +114,6 @@ messageQueue.producer.close <-
 #     R> package.skeleton(name="messageQueue", code_files=c("messageQueue.R"), list=c("messageQueue.factory.getProducerFor", "messageQueue.producer.close", "messageQueue.producer.putText", "messageQueue.factory.getConsumerFor", "messageQueue.consumer.close", "messageQueue.consumer.getNextText"))
 # 3.  tar it up
 #     R> build
-# 4.  check the build
-#     R> check
+# 4.  check the build just for the arch we are running on
+#     R> check --no-multiarch
 # 
