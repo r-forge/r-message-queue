@@ -23,12 +23,20 @@ messageQueue.factory.getConsumerFor <-
 	function(url, queue, queueType) {
 		# call the MessageQueueFactory.getConsumerFor static method
 		
-		# should be a static call, not sure how to do that
-		#consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
+		if (queueType == "activeMQ" || queueType == "activemq" || queueType == "rabbitmq" || queueType == "rabbitMQ") { 
+			# static call
+			consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
+			
+			if (!is.null(consumer)) {
+				cat("WARNING: consumer is null.  Not sure why.\n");
+			}
+		} else {
+			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
+		}
 	
-		# instantiate object, then call (for now)
-		mqFactory <- .jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
-		consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
+		# non static call - instantiate object, then call
+		#mqFactory <- .jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
+		#consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
 		return(consumer);
 	}
 
@@ -43,10 +51,19 @@ messageQueue.factory.getProducerFor <-
 	function(url, queue, queueType) {
 		# call the MessageQueueFactory.getConsumerFor static method
 	
-		# should be a static call, not sure how to do that
-		producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
+		if (queueType == "activeMQ" || queueType == "activemq" || queueType == "rabbitmq" || queueType == "rabbitMQ") { 
+			# static call
+			producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
+		
+			if (!is.null(producer)) {
+				cat("WARNING: producer is null.  Not sure why.\n");
+			}
+		} else {
+			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
+		}
+	
 
-		# instantiate object, then call (for now)
+		# non static call - instantiate object, then call
 		#mqFactory <-.jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
 		#consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
 		return(producer);
@@ -58,9 +75,12 @@ messageQueue.factory.getProducerFor <-
 messageQueue.consumer.getNextText <-
 	function(consumer) {
 		if (!is.null(consumer)) {
-			#message <- .jcall(consumer, "S", "getNextText")
-			message <- consumer$.getNextText();
+			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
+		
+			# this fancy, nice syntax doesn't seem to work
+			#message <- consumer$.getNextText();
 		} else {
+			cat("ERROR: consumer is null.\n");
 			message = NULL;
 		}
 		return(message);
@@ -72,9 +92,12 @@ messageQueue.consumer.getNextText <-
 messageQueue.consumer.close <-
 	function(consumer) {
 		if (!is.null(consumer)) {
-			#status <- .jcall(consumer, "I", "close")
-			status <- consumer$close();
+			status <- .jcall(consumer, "I", "close")
+		
+			# this fancy, nice syntax doesn't seem to work
+			#status <- consumer$close();
 		} else {
+			cat("ERROR: consumer is null.\n");
 			status = -5;
 		}
 		return(status);
@@ -83,11 +106,19 @@ messageQueue.consumer.close <-
 	
 # Add the following text to the noted queue
 # Non-blocking
+# 
+# result codes:
+# -5: producer is null
+# -4: session is null, can't create a message (in java)
+# -2: JMS exception trying to send the message (in java)
+# -1: unknown error
+#  1: success
 messageQueue.producer.putText <-
 	function(producer, text) {
-		if (!is.null(producer)) {
+		if (!is.null(producer) && !is.null(text)) {
 			status <- .jcall(producer, "I", "putText", text)
 		} else {
+			cat("ERROR: producer is null, or text is null.\n");
 			status = -5;
 		}
 		return(status);
@@ -101,6 +132,7 @@ messageQueue.producer.close <-
 		if (!is.null(producer)) {
 			status <- .jcall(producer, "I", "close")
 		} else {
+			cat("ERROR: producer is null.\n");
 			status = -5;
 		}
 		return(status);
