@@ -51,8 +51,13 @@ Writing Java Extensions - http://cran.r-project.org/web/packages/helloJavaWorld/
 # Basic example using all functions
 # NOTE: I can't get the example to run via the build server automatically, so I'm commenting it out
 
+# NORMALLY, this url would be of the form 'tcp://host:61616', but for testing, activeMQ provides
+# a local/internal queue that works by default
+queueUrl <- "vm:localhost?broker.persistent=false"
+
+
 # create a queue producer
-queueAproducer <- messageQueue.factory.getProducerFor("tcp://localhost:61616","queueA","activeMQ")
+queueAproducer <- messageQueue.factory.getProducerFor(queueUrl,"queueA","activeMQ")
 
 # ... do some stuff ...
 
@@ -66,10 +71,12 @@ status <- messageQueue.producer.close(queueAproducer)
 
 
 # create a queue consumer
-queueAconsumer <- messageQueue.factory.getConsumerFor("tcp://localhost:61616","queueA","activeMQ")
+queueAconsumer <- messageQueue.factory.getConsumerFor(queueUrl,"queueA","activeMQ")
 
 # retrieve the next available text message
 textMessage <- messageQueue.consumer.getNextText(queueAconsumer)
+cat(textMessage)
+
 
 # ... do some stuff ...
 
