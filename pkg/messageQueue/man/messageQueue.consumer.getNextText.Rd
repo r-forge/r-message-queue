@@ -38,8 +38,12 @@ Matt MacGillivray
 \code{\link{messageQueue.factory.getConsumerFor}}
 }
 \examples{
+# NORMALLY, this url would be of the form 'tcp://host:61616', but for testing, activeMQ provides
+# a local/internal queue that works by default
+queueUrl <- "vm:localhost?broker.persistent=false"
+
 # create a queue consumer
-queueAconsumer <- messageQueue.factory.getConsumerFor("tcp://localhost:61616","queueA","activeMQ")
+queueAconsumer <- messageQueue.factory.getConsumerFor(queueUrl,"queueA","activeMQ")
 
 # retrieve the next available text message
 textMessage <- messageQueue.consumer.getNextText(queueAconsumer)
