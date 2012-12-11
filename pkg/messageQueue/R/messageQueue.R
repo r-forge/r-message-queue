@@ -27,7 +27,7 @@ messageQueue.factory.getConsumerFor <-
 			# static call
 			consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
 			
-			if (!is.null(consumer)) {
+			if (is.null(consumer)) {
 				cat("WARNING: consumer is null.  Not sure why.\n");
 			}
 		} else {
@@ -55,7 +55,7 @@ messageQueue.factory.getProducerFor <-
 			# static call
 			producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
 		
-			if (!is.null(producer)) {
+			if (is.null(producer)) {
 				cat("WARNING: producer is null.  Not sure why.\n");
 			}
 		} else {
@@ -79,6 +79,9 @@ messageQueue.consumer.getNextText <-
 		
 			# this fancy, nice syntax doesn't seem to work
 			#message <- consumer$.getNextText();
+			if (status < 0) {
+				consumer$getStatusString(consumer$lastStatusCode);
+			}
 		} else {
 			cat("ERROR: consumer is null.\n");
 			message = NULL;
@@ -96,6 +99,9 @@ messageQueue.consumer.close <-
 		
 			# this fancy, nice syntax doesn't seem to work
 			#status <- consumer$close();
+			if (status < 0) {
+				cat(consumer$getStatusString(status));
+			}
 		} else {
 			cat("ERROR: consumer is null.\n");
 			status = -5;
@@ -117,6 +123,10 @@ messageQueue.producer.putText <-
 	function(producer, text) {
 		if (!is.null(producer) && !is.null(text)) {
 			status <- .jcall(producer, "I", "putText", text)
+			
+			if (status < 0) {
+				cat(producer$getStatusString(status));
+			}
 		} else {
 			cat("ERROR: producer is null, or text is null.\n");
 			status = -5;
@@ -131,6 +141,10 @@ messageQueue.producer.close <-
 	function(producer) {
 		if (!is.null(producer)) {
 			status <- .jcall(producer, "I", "close")
+			
+			if (status < 0) {
+				cat(producer$getStatusString(status));
+			}
 		} else {
 			cat("ERROR: producer is null.\n");
 			status = -5;
