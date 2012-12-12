@@ -14,7 +14,6 @@ deal with the specifics of queues or their underlying implementation differences
 
 Provides a simple way to PUT a text message on a queue and GET a text message
 from a queue.
-
 }
 \details{
 \tabular{ll}{
