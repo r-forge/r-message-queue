@@ -80,7 +80,7 @@ messageQueue.consumer.getNextText <-
 		
 			# this fancy, nice syntax doesn't seem to work
 			#message <- consumer$.getNextText();
-			if (status < 0) {
+			if (consumer$lastStatusCode < 0) {
 				consumer$getStatusString(consumer$lastStatusCode);
 			}
 		} else {
