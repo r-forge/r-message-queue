@@ -79,7 +79,6 @@ messageQueue.consumer.getNextText <-
 			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
 		
 			# this fancy, nice syntax doesn't seem to work
-			#message <- consumer$.getNextText();
 			if (consumer$lastStatusCode < 0) {
 				consumer$getStatusString(consumer$lastStatusCode);
 			}
@@ -99,7 +98,6 @@ messageQueue.consumer.close <-
 			status <- .jcall(consumer, "I", "close")
 		
 			# this fancy, nice syntax doesn't seem to work
-			#status <- consumer$close();
 			if (status < 0) {
 				cat(consumer$getStatusString(status));
 			}

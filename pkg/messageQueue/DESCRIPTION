@@ -1,7 +1,7 @@
 Package: messageQueue
 Type: Package
 Title: Allow R to communicate with message queues
-Version: 0.2
+Version: 0.3
 Date: 2012-12-12
 Author: Matt MacGillivray
 Depends: R (>= 2.11.0), rJava (>= 0.6-0)
