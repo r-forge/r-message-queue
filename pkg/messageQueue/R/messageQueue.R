@@ -52,7 +52,7 @@ messageQueue.factory.getProducerFor <-
 	function(url, queue, queueType) {
 		# call the MessageQueueFactory.getConsumerFor static method
 	
-		if (queueType == "activeMQ" || queueType == "activemq" || queueType == "rabbitmq" || queueType == "rabbitMQ") { 
+		if (tolower(queueType) == "activemq" || tolower(queueType) == "rabbitmq") { 
 			# static call
 			producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
 		
@@ -76,7 +76,8 @@ messageQueue.factory.getProducerFor <-
 messageQueue.consumer.getNextText <-
 	function(consumer) {
 		if (!is.null(consumer)) {
-			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
+#			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
+			message <- .jcall(consumer, "Ledu/cornell/clo/r/message_queue/STextMessage;", "getNextText");
 		
 			# this fancy, nice syntax doesn't seem to work
 			if (consumer$lastStatusCode < 0) {
@@ -109,6 +110,7 @@ messageQueue.consumer.close <-
 	}
 
 	
+	
 # Add the following text to the noted queue
 # Non-blocking
 # 
@@ -119,9 +121,9 @@ messageQueue.consumer.close <-
 # -1: unknown error
 #  1: success
 messageQueue.producer.putText <-
-	function(producer, text) {
+	function(producer, text, correlationId = "", replyToQueue = "") {
 		if (!is.null(producer) && !is.null(text)) {
-			status <- .jcall(producer, "I", "putText", text)
+			status <- .jcall(producer, "I", "putText", text, correlationId, replyToQueue)
 			
 			if (status < 0) {
 				cat(producer$getStatusString(status));
@@ -132,6 +134,8 @@ messageQueue.producer.putText <-
 		}
 		return(status);
 	}
+	
+	
 	
 
 # Close the producer, deallocate resources.
