@@ -35,12 +35,11 @@ messageQueue.factory.getConsumerFor <-
 			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
 		}
 	
-		# non static call - instantiate object, then call
-		#mqFactory <- .jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
-		#consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
 		return(consumer);
 	}
 
+	
+	
 # Make a connection to a queue, and generate a producer for it.
 #
 # Returns: the producer instance, null if the connection couldn't be established
@@ -63,10 +62,6 @@ messageQueue.factory.getProducerFor <-
 			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
 		}
 	
-
-		# non static call - instantiate object, then call
-		#mqFactory <-.jnew("edu/cornell/clo/r/message_queue/MessageQueueFactory");
-		#consumer <- .jcall(mqFactory, "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
 		return(producer);
 	}
 
@@ -75,21 +70,75 @@ messageQueue.factory.getProducerFor <-
 # Non-blocking
 messageQueue.consumer.getNextText <-
 	function(consumer) {
+		smessage = NULL;
 		if (!is.null(consumer)) {
 #			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
+			cat(" before 'getNextText'\n");
 			message <- .jcall(consumer, "Ledu/cornell/clo/r/message_queue/STextMessage;", "getNextText");
+			
+			# decode from java.lang.String objects to R strings
+			if (!is.null(message)) {
+				cat("message retrieved\n");
+				smessage <- list("value" = .jstrVal(message$value), "correlationId" = .jstrVal(message$correlationId), "replyTo" = .jstrVal(message$replyTo));
+				#smessage = NULL;
+				cat(paste("retrieved message$value: '", smessage$value,"', message$correlationId: '",smessage$correlationId,"', message$replyTo: '",smessage$replyTo,"'\n", sep=""));
+				
+#				if (!is.null(message$value)) {
+#					smessage$value <- .jstrVal(message$value);
+#				}
+#				if (!is.null(message$correlationId)) {
+#					smessage$correlationId <- .jstrVal(message$correlationId);
+#				}
+#				if (!is.null(message$replyTo)) {
+#					smessage$replyTo <- .jstrVal(message$replyTo);
+#				}
+				
+			} else {
+				cat(paste("no message retrieved status: ", consumer$lastStatusCode, "\n", sep=""));
+				smessage = NULL;
+				return(NULL);
+			}
 		
 			# this fancy, nice syntax doesn't seem to work
 			if (consumer$lastStatusCode < 0) {
-				consumer$getStatusString(consumer$lastStatusCode);
+				cat(consumer$getStatusString(consumer$lastStatusCode));
 			}
 		} else {
 			cat("ERROR: consumer is null.\n");
-			message = NULL;
+			smessage = NULL;
+			return(NULL);
 		}
-		return(message);
+		return(smessage);
 	}
 
+
+	
+	
+# EXCLUSIVELY used for testing
+messageQueue.consumer.clearQueue <-
+	function(consumer) {
+		if (!is.null(consumer)) {
+			cat(" clearing queue...\n");
+		
+			i <- 0;
+			# loop until the queue is empty
+			repeat {
+				message <- .jcall(consumer, "Ledu/cornell/clo/r/message_queue/STextMessage;", "getNextText");
+			
+				# 3 null messages? break..
+				if (is.null(message)) {
+					i <- i+1;
+					if (i > 2) {
+						break;
+					}
+				}
+			}
+			cat(" clearing queue... done\n");
+		}
+	}
+	
+	
+	
 
 # Close the consumer, deallocate resources.
 # Non-blocking
@@ -163,6 +212,6 @@ messageQueue.producer.close <-
 #     R> package.skeleton(name="messageQueue", code_files=c("messageQueue.R"), list=c("messageQueue.factory.getProducerFor", "messageQueue.producer.close", "messageQueue.producer.putText", "messageQueue.factory.getConsumerFor", "messageQueue.consumer.close", "messageQueue.consumer.getNextText"))
 # 3.  tar it up
 #     R> build
-# 4.  check the build just for the arch we are running on
+# 4.  check the build just for the arch we are running on, which will also run the test cases
 #     R> check --no-multiarch
 # 

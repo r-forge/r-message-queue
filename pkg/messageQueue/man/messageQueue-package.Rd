@@ -52,7 +52,7 @@ Writing Java Extensions - http://cran.r-project.org/web/packages/helloJavaWorld/
 
 # NORMALLY, this url would be of the form 'tcp://host:61616', but for testing, activeMQ provides
 # a local/internal queue that works by default
-queueUrl <- "vm:localhost?broker.persistent=false"
+queueUrl <- "vm://localhost?broker.persistent=false"
 
 
 # create a queue producer
