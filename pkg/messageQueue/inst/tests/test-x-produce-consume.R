@@ -3,6 +3,7 @@
 
 # this allows tests to run without actually running an ActiveMQ server
 host <- "vm://localhost?broker.persistent=false&broker.deleteAllMessagesOnStartup=true&broker.useJmx=false&jms.prefetchPolicy.queuePrefetch=1";
+#host <- "tcp://ag-clo-ampbuild:61616";
 queue <- "amq-prodcon-test-queue";
 type <- "activeMQ";
 #host <- "tcp://ag-clo-ampbuild:61616";

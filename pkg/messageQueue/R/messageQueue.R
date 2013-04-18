@@ -20,8 +20,9 @@
 # url: url to the host machine
 # queue: name of the queue
 # queueType: activeMQ, rabbitMQ
-messageQueue.factory.getConsumerFor <-
-	function(url, queue, queueType) {
+messageQueue.factory.getConsumerFor <- function(url, queue, queueType) {
+		require(futile.logger);
+		
 		# call the MessageQueueFactory.getConsumerFor static method
 		
 		if (queueType == "activeMQ" || queueType == "activemq" || queueType == "rabbitmq" || queueType == "rabbitMQ") { 
@@ -29,10 +30,10 @@ messageQueue.factory.getConsumerFor <-
 			consumer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Consumer;","getConsumerFor", url, queue, queueType)
 			
 			if (is.null(consumer)) {
-				cat("WARNING: consumer is null.  Not sure why.\n");
+				flog.warn("WARNING: consumer is null.  Not sure why.", name="messageQueue");
 			}
 		} else {
-			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
+			flog.error("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: %s", queueType, name="messageQueue");
 		}
 	
 		return(consumer);
@@ -47,8 +48,8 @@ messageQueue.factory.getConsumerFor <-
 # url: url to the host machine
 # queue: name of the queue
 # queueType: activeMQ, rabbitMQ
-messageQueue.factory.getProducerFor <-
-	function(url, queue, queueType) {
+messageQueue.factory.getProducerFor <- function(url, queue, queueType) {
+		require(futile.logger);
 		# call the MessageQueueFactory.getConsumerFor static method
 	
 		if (tolower(queueType) == "activemq" || tolower(queueType) == "rabbitmq") { 
@@ -56,10 +57,10 @@ messageQueue.factory.getProducerFor <-
 			producer <- .jcall(J("edu/cornell/clo/r/message_queue/MessageQueueFactory"), "Ledu/cornell/clo/r/message_queue/Producer;","getProducerFor", url, queue, queueType)
 		
 			if (is.null(producer)) {
-				cat("WARNING: producer is null.  Not sure why.\n");
+				flog.warn("WARNING: producer is null.  Not sure why.", name="messageQueue");
 			}
 		} else {
-			cat("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: " + queueType + "\n");
+			flog.error("ERROR: queueType must be one of (activeMQ, rabbitMQ), not: %s", queueType, name="messageQueue");
 		}
 	
 		return(producer);
@@ -68,43 +69,33 @@ messageQueue.factory.getProducerFor <-
 
 # Check for a message on the queue.
 # Non-blocking
-messageQueue.consumer.getNextText <-
-	function(consumer) {
+messageQueue.consumer.getNextText <- function(consumer) {
+		require(futile.logger);
+		
 		smessage = NULL;
 		if (!is.null(consumer)) {
-#			message <- .jcall(consumer, "Ljava/lang/String;", "getNextText");
-			cat(" before 'getNextText'\n");
+			flog.debug(" before 'getNextText'", name="messageQueue");
 			message <- .jcall(consumer, "Ledu/cornell/clo/r/message_queue/STextMessage;", "getNextText");
 			
 			# decode from java.lang.String objects to R strings
 			if (!is.null(message)) {
-				cat("message retrieved\n");
+				flog.debug("message retrieved", name="messageQueue");
 				smessage <- list("value" = .jstrVal(message$value), "correlationId" = .jstrVal(message$correlationId), "replyTo" = .jstrVal(message$replyTo));
-				#smessage = NULL;
-				cat(paste("retrieved message$value: '", smessage$value,"', message$correlationId: '",smessage$correlationId,"', message$replyTo: '",smessage$replyTo,"'\n", sep=""));
 				
-#				if (!is.null(message$value)) {
-#					smessage$value <- .jstrVal(message$value);
-#				}
-#				if (!is.null(message$correlationId)) {
-#					smessage$correlationId <- .jstrVal(message$correlationId);
-#				}
-#				if (!is.null(message$replyTo)) {
-#					smessage$replyTo <- .jstrVal(message$replyTo);
-#				}
+				flog.trace("retrieved message$value: '%s', correlationId: '%s', replyTo: '%s'", smessage$value, smessage$correlationId, smessage$replyTo, name="messageQueue");
 				
 			} else {
-				cat(paste("no message retrieved status: ", consumer$lastStatusCode, "\n", sep=""));
+				flog.debug("no message retrieved status: %s", consumer$lastStatusCode, name="messageQueue");
 				smessage = NULL;
 				return(NULL);
 			}
 		
 			# this fancy, nice syntax doesn't seem to work
 			if (consumer$lastStatusCode < 0) {
-				cat(consumer$getStatusString(consumer$lastStatusCode));
+				flog.debug(consumer$getStatusString(consumer$lastStatusCode), name="messageQueue");
 			}
 		} else {
-			cat("ERROR: consumer is null.\n");
+			flog.debug("ERROR: consumer is null.", name="messageQueue");
 			smessage = NULL;
 			return(NULL);
 		}
@@ -115,10 +106,11 @@ messageQueue.consumer.getNextText <-
 	
 	
 # EXCLUSIVELY used for testing
-messageQueue.consumer.clearQueue <-
-	function(consumer) {
+messageQueue.consumer.clearQueue <- function(consumer) {
+		require(futile.logger);
+		
 		if (!is.null(consumer)) {
-			cat(" clearing queue...\n");
+			flog.debug(" clearing queue...", name="messageQueue");
 		
 			i <- 0;
 			# loop until the queue is empty
@@ -133,7 +125,7 @@ messageQueue.consumer.clearQueue <-
 					}
 				}
 			}
-			cat(" clearing queue... done\n");
+			flog.debug(" clearing queue... done", name="messageQueue");
 		}
 	}
 	
@@ -142,17 +134,18 @@ messageQueue.consumer.clearQueue <-
 
 # Close the consumer, deallocate resources.
 # Non-blocking
-messageQueue.consumer.close <-
-	function(consumer) {
+messageQueue.consumer.close <- function(consumer) {
+		require(futile.logger);
+		
 		if (!is.null(consumer)) {
 			status <- .jcall(consumer, "I", "close")
 		
 			# this fancy, nice syntax doesn't seem to work
 			if (status < 0) {
-				cat(consumer$getStatusString(status));
+				flog.debug(consumer$getStatusString(status), name="messageQueue");
 			}
 		} else {
-			cat("ERROR: consumer is null.\n");
+			flog.debug("ERROR: consumer is null.", name="messageQueue");
 			status = -5;
 		}
 		return(status);
@@ -169,16 +162,17 @@ messageQueue.consumer.close <-
 # -2: JMS exception trying to send the message (in java)
 # -1: unknown error
 #  1: success
-messageQueue.producer.putText <-
-	function(producer, text, correlationId = "", replyToQueue = "") {
+messageQueue.producer.putText <- function(producer, text, correlationId = "", replyToQueue = "") {
+		require(futile.logger);
+		
 		if (!is.null(producer) && !is.null(text)) {
 			status <- .jcall(producer, "I", "putText", text, correlationId, replyToQueue)
 			
 			if (status < 0) {
-				cat(producer$getStatusString(status));
+				flog.debug(producer$getStatusString(status), name="messageQueue");
 			}
 		} else {
-			cat("ERROR: producer is null, or text is null.\n");
+			flog.debug("ERROR: producer is null, or text is null.", name="messageQueue");
 			status = -5;
 		}
 		return(status);
@@ -189,16 +183,17 @@ messageQueue.producer.putText <-
 
 # Close the producer, deallocate resources.
 # Non-blocking
-messageQueue.producer.close <-
-	function(producer) {
+messageQueue.producer.close <- function(producer) {
+		require(futile.logger);
+		
 		if (!is.null(producer)) {
 			status <- .jcall(producer, "I", "close")
 			
 			if (status < 0) {
-				cat(producer$getStatusString(status));
+				flog.debug(producer$getStatusString(status));
 			}
 		} else {
-			cat("ERROR: producer is null.\n");
+			flog.debug("ERROR: producer is null.", name="messageQueue");
 			status = -5;
 		}
 		return(status);
