@@ -142,7 +142,7 @@ messageQueue.consumer.close <- function(consumer) {
 		
 			# this fancy, nice syntax doesn't seem to work
 			if (status < 0) {
-				flog.debug(consumer$getStatusString(status), name="messageQueue");
+				flog.debug("[messageQueue.consumer.close] status: %s", consumer$getStatusString(status), name="messageQueue");
 			}
 		} else {
 			flog.debug("ERROR: consumer is null.", name="messageQueue");
@@ -169,7 +169,7 @@ messageQueue.producer.putText <- function(producer, text, correlationId = "", re
 			status <- .jcall(producer, "I", "putText", text, correlationId, replyToQueue)
 			
 			if (status < 0) {
-				flog.debug(producer$getStatusString(status), name="messageQueue");
+				flog.debug("[messageQueue.producer.putText] stautus: %s", producer$getStatusString(status), name="messageQueue");
 			}
 		} else {
 			flog.debug("ERROR: producer is null, or text is null.", name="messageQueue");
@@ -190,7 +190,7 @@ messageQueue.producer.close <- function(producer) {
 			status <- .jcall(producer, "I", "close")
 			
 			if (status < 0) {
-				flog.debug(producer$getStatusString(status));
+				flog.debug("[messageQueue.producer.close] status: %s", producer$getStatusString(status), name="messageQueue");
 			}
 		} else {
 			flog.debug("ERROR: producer is null.", name="messageQueue");
@@ -201,12 +201,11 @@ messageQueue.producer.close <- function(producer) {
 	
 	
 
-# steps for building/packaging
-# 1.  copy JAR to project directory/inst/java/messageQueue.jar, where .onLoad will load it
-# 2.  packaging code
-#     R> package.skeleton(name="messageQueue", code_files=c("messageQueue.R"), list=c("messageQueue.factory.getProducerFor", "messageQueue.producer.close", "messageQueue.producer.putText", "messageQueue.factory.getConsumerFor", "messageQueue.consumer.close", "messageQueue.consumer.getNextText"))
-# 3.  tar it up
-#     R> build
-# 4.  check the build just for the arch we are running on, which will also run the test cases
-#     R> check --no-multiarch
-# 
+# BEGINNING DEV, building out the basic structure/documentation
+# R> package.skeleton(name="messageQueue", code_files=c("messageQueue.R"), list=c("messageQueue.factory.getProducerFor", "messageQueue.producer.close", "messageQueue.producer.putText", "messageQueue.factory.getConsumerFor", "messageQueue.consumer.close", "messageQueue.consumer.getNextText"))
+
+# CHECKING/TESTING: running tests, ensuring the package structure is fine, run from the messageQueue's parent directory:
+# R CMD check --no-multiarch messageQueue
+
+# BUILDING, creating ZIP or tar.gz file for distribution:
+# R CMD INSTALL --no-multiarch --build messageQueue
